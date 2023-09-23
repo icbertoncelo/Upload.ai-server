@@ -1,5 +1,5 @@
 import { FastifyInstance } from "fastify";
-import { prisma } from "../lib/prisma";
+import { prisma } from "../lib";
 
 export async function getAllPrompts(app: FastifyInstance) {
   app.get('/prompts', async() => {

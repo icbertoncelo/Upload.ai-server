@@ -6,7 +6,7 @@ import { promisify } from "util";
 import { pipeline } from "stream";
 import { createWriteStream } from "fs";
 
-import { prisma } from "../lib/prisma";
+import { prisma } from "../lib";
 
 const pump = promisify(pipeline)
 
@@ -31,20 +31,18 @@ export async function uploadVideoRoute(app: FastifyInstance) {
     }
 
     const fileBaseName = path.basename(data.filename, fileExtension)
-    const fileUploadName = `${fileBaseName}${randomUUID()}${fileExtension}`
+    const fileUploadName = `${fileBaseName}-${randomUUID()}${fileExtension}`
     const uploadDir = path.resolve(__dirname, '..', '..', 'tmp', fileUploadName)
 
     await pump(data.file, createWriteStream(uploadDir))
 
-    const video = prisma.video.create({
+    const video = await prisma.video.create({
       data: {
         name: data.filename,
         path: uploadDir,
       }
     })
 
-    return {
-      video
-    }
+    return { video }
   })
 }
